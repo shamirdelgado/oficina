@@ -7,6 +7,10 @@ import { Reception } from './zones/Reception'
 import { Desks } from './zones/Desks'
 import { BossOffice } from './zones/BossOffice'
 import { WallArt } from './WallArt'
+import { WaitingRoom } from './zones/WaitingRoom'
+import { Gastly } from './Gastly'
+import { Tyrunt } from './pets/Tyrunt'
+import { Aquarium } from './pets/Aquarium'
 
 export function Office() {
   const palette = useOfficePalette()
@@ -19,10 +23,14 @@ export function Office() {
     <Box size={[0.24, 0.14, 16.2]} position={[-6.98, 0.1, 0]} color={palette.wood} />
     <Box size={[14.2, 0.14, 0.24]} position={[0, 0.1, -7.98]} color={palette.wood} />
     <Reception />
+    <WaitingRoom />
     <Desks />
     <BossOffice />
     <BreakRoom />
     <WallArt />
     <Life />
+    <Tyrunt />
+    <Aquarium />
+    <Gastly />
   </group>
 }

@@ -12,6 +12,7 @@ import type { Actor, ActorId } from './routines'
 import { followVisitor } from './companion'
 import type { VisitorTrail } from './companion'
 import { nodes } from './navGraph'
+import { hiddenByLobby } from '../../state/lobby'
 import type { NodeId, Point } from './navGraph'
 
 
@@ -167,9 +168,10 @@ export function Life() {
       const group = groups.current.get(actor.id)
       if (!group) continue
 
-      group.visible = actor.visible
+      const shown = actor.visible && !hiddenByLobby(actor.position[2])
+      group.visible = shown
       const labelElement = labels.current.get(actor.id)
-      if (labelElement) labelElement.hidden = !actor.visible
+      if (labelElement) labelElement.hidden = !shown
       group.position.set(...actor.position)
       actorPositions[actor.id] = actor.position
       const visual = visuals.current.get(actor.id)

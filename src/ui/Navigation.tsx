@@ -9,7 +9,8 @@ export function Navigation() {
   const { request, focus } = useCameraFocus()
   const zone = zones.find(target => target === request.target)
   const focusLabel = zone && zone !== 'overview' ? t.zoneLabels[zone]
-    : request.target === 'pikachu' ? t.pikachu : request.target === 'cat' ? t.cat : t.targets[request.target]
+    : request.target === 'pikachu' ? t.pikachu : request.target === 'cat' ? t.cat
+    : request.target === 'tyrunt' || request.target === 'totodile' ? t.pets[request.target] : t.targets[request.target]
   return <>
     <div className="navigation-context">
       <span className="zone-label" role="status">{focusLabel}</span>

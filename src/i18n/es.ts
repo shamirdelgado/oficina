@@ -55,5 +55,7 @@ export const es = {
   nameQuestion: '¿Cómo te llamas?', nameLabel: 'Tu nombre', enter: 'Entrar', skip: 'Prefiero no decirlo',
   visitorDefault: 'Visitante', changeName: 'Cambiar nombre', greeting: '¡Hola, {name}!',
   help: '¿En qué te ayudo, {name}?', close: 'Cerrar', meow: 'miau', cat: 'Chispitas', pikachu: 'Pikachu', pika: '¡Pika pika!',
+  pets: { tyrunt: 'Tyrunt', totodile: 'Totodile', gastly: 'Gastly' },
+  petCries: { tyrunt: '¡Grrr!', totodile: '¡Splash!', gastly: '¡Je, je, je!' },
   cues: { coffee: '☕', talk: '💬', sweep: '🧹', thinking: '🤔', done: '✓' },
 }

@@ -24,7 +24,6 @@ export function Reception() {
       <Box size={[0.5, 0.12, 0.6]} position={[0, 0.85, 0.7]} color={palette.purple} />
     </group>
     <Plant position={[-5.7, 0, 6.5]} />
-    <Plant position={[4.8, 0, 2.9]} scale={0.8} />
     <Box size={[3.8, 0.025, 2.4]} position={[-0.4, 0.04, 6.5]} color={palette.rug} />
   </group>
 }

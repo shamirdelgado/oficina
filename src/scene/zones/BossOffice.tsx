@@ -1,6 +1,5 @@
 import { Box, Chair, Desk, Plant } from '../primitives'
 import { useOfficePalette } from '../palette'
-import { Gastly } from '../Gastly'
 
 function Glass({ position, width, rotation = 0 }: {
   position: [number, number, number]; width: number; rotation?: number
@@ -35,8 +34,5 @@ export function BossOffice() {
     <group position={[0.6, 0, -5.2]} rotation={[0, Math.PI / 2, 0]}><Desk position={[0, 0, 0]} executive /></group>
     <group position={[1.9, 0, -5.2]} rotation={[0, -Math.PI / 2, 0]}><Chair position={[0, 0, 0]} /></group>
     <Plant position={[-5.6, 0, -6.6]} scale={1.2} />
-    <Box size={[2, 0.7, 0.65]} position={[5.2, 0.35, -7.3]} color={palette.wood} />
-    <Plant position={[5.2, 0.7, -7.3]} scale={0.6} />
-    <Gastly />
   </group>
 }
