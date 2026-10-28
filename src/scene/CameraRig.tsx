@@ -39,10 +39,9 @@ declare global {
 
 export function CameraRig() {
   const { camera, size } = useThree()
-  const { request, motion } = useCameraFocus()
+  const { request, motion, stop } = useCameraFocus()
   const reducedMotion = useReducedMotion()
   const controls = useRef<ComponentRef<typeof MapControls>>(null)
-  const moving = useRef(true)
   const destination = useRef(new Vector3())
   const desiredZoom = useRef(1)
   const deltaVector = useRef(new Vector3())
@@ -56,13 +55,11 @@ export function CameraRig() {
     const target = cameraTargets[request.target]
     destination.current.set(target.point[0], target.point[1], target.point[2])
     desiredZoom.current = fitZoom * target.scale
-    moving.current = true
-    motion.current = { ...request, moving: true }
-  }, [request, fitZoom, motion])
+  }, [request, fitZoom])
 
   const clampPan = useCallback(() => {
     const control = controls.current
-    if (!control || moving.current) return
+    if (!control || motion.current.moving) return
 
     const target = control.target
     deltaVector.current.copy(target)
@@ -73,18 +70,17 @@ export function CameraRig() {
     )
     deltaVector.current.sub(target)
     camera.position.sub(deltaVector.current)
-  }, [camera, portrait])
+  }, [camera, portrait, motion])
 
   useFrame((_, delta) => {
     const control = controls.current
-    const actorKey = request.target === 'boss' ? 'shamir' : request.target
-    const tracked = actorPositions[actorKey]
-    if (tracked && ['esiel', 'kalua', 'shamir', 'cleaner', 'visitor'].includes(actorKey)) {
+    const tracked = motion.current.following && actorPositions[motion.current.following]
+    if (tracked) {
       destination.current.set(tracked[0], tracked[1] + 1, tracked[2])
-      moving.current = true
+      motion.current.moving = true
     }
 
-    if (control && moving.current && camera instanceof OrthographicCamera) {
+    if (control && motion.current.moving && camera instanceof OrthographicCamera) {
       const alpha = reducedMotion ? 1 : 1 - Math.exp(-7 * Math.min(delta, 0.1))
       control.target.lerp(destination.current, alpha)
       camera.position.copy(control.target).add(offset)
@@ -101,11 +97,9 @@ export function CameraRig() {
         camera.zoom = desiredZoom.current
         camera.updateProjectionMatrix()
         control.update()
-        moving.current = false
+        motion.current.moving = false
       }
     }
-
-    motion.current.moving = moving.current
 
     if (import.meta.env.DEV) {
       const trace = window.__cameraTrace ??= []
@@ -116,7 +110,7 @@ export function CameraRig() {
         previous[2] !== request.revision ||
         previous[3] !== camera.zoom ||
         previous[4] !== desiredZoom.current ||
-        previous[5] !== moving.current
+        previous[5] !== motion.current.moving
       ) {
         trace.push([
           performance.now(),
@@ -124,7 +118,7 @@ export function CameraRig() {
           request.revision,
           camera.zoom,
           desiredZoom.current,
-          moving.current,
+          motion.current.moving,
         ])
         if (trace.length > 300) trace.shift()
       }
@@ -141,9 +135,7 @@ export function CameraRig() {
       dampingFactor={0.12}
       minZoom={fitZoom * 0.85}
       maxZoom={fitZoom * 3}
-      onStart={() => {
-        moving.current = false
-      }}
+      onStart={stop}
       onChange={clampPan}
     />
   )

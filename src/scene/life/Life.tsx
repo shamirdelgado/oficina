@@ -36,6 +36,7 @@ export function Life() {
   const bubbles = useRef(new Map<ActorId, HTMLSpanElement>())
   const time = useRef(0)
   const greetingDeadline = useRef<number | null>(null)
+  const visitorStarted = useRef(false)
   const { t } = useLanguage()
   const { name, arrived } = useVisitor()
   const { request, focus, motion } = useCameraFocus()
@@ -46,12 +47,13 @@ export function Life() {
   const [emmaOpen, setEmmaOpen] = useState(false)
 
   useEffect(() => {
-    if (!name || arrived) return
+    if (!name || arrived || visitorStarted.current) return
 
+    visitorStarted.current = true
     const visitor = actors.current.find(actor => actor.id === 'visitor')!
     visitor.visible = true
     go(visitor, 'visitor')
-    focusRef.current('visitor')
+    focusRef.current('reception')
   }, [name, arrived])
 
   const select = (id: ActorId) => {
@@ -60,7 +62,6 @@ export function Life() {
       cat.jump = 0.6
       cat.cue = 'meow'
       cat.cueUntil = time.current + 2
-      return
     }
 
     if (id === 'emma') {
@@ -69,7 +70,7 @@ export function Life() {
       return
     }
 
-    focus(id === 'shamir' ? 'boss' : id)
+    focus(id === 'shamir' ? 'boss' : id, id)
   }
 
   useFrame((_, elapsed) => {
@@ -148,7 +149,6 @@ export function Life() {
         emma.cueUntil = Infinity
         greetingDeadline.current = performance.now() + 1500
         visitorArrived()
-        focus('reception')
       }
 
       if (actor.id === 'emma') {

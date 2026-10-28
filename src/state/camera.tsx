@@ -1,4 +1,4 @@
-import { createContext, useContext, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react'
 import type { ReactNode, RefObject } from 'react'
 
 export const cameraTargets = {
@@ -8,6 +8,7 @@ export const cameraTargets = {
   desks: { point: [0, 0.6, -0.2], scale: 1.6 },
   breakRoom: { point: [7.6, 0.7, -0.2], scale: 1.8 },
   cleaner: { point: [0, 1, 2], scale: 2 },
+  cat: { point: [7.6, 1, -0.2], scale: 2 },
   visitor: { point: [0, 1, 6], scale: 1.7 },
   esiel: { point: [-2, 1, -0.7], scale: 2.1 },
   kalua: { point: [2.4, 1, -0.7], scale: 2.1 },
@@ -15,18 +16,38 @@ export const cameraTargets = {
 } as const
 export const actorPositions: Partial<Record<string, [number, number, number]>> = {}
 export type CameraTarget = keyof typeof cameraTargets
-type CameraMotion = { target: CameraTarget; revision: number; moving: boolean }
+type FollowedActor = 'esiel' | 'kalua' | 'shamir' | 'cleaner' | 'cat' | 'visitor'
+type CameraMotion = { target: CameraTarget; revision: number; moving: boolean; following: FollowedActor | null }
 const CameraContext = createContext<{
   request: { target: CameraTarget; revision: number }
-  focus: (target: CameraTarget) => void
+  focus: (target: CameraTarget, following?: FollowedActor) => void
+  stop: () => void
   motion: RefObject<CameraMotion>
 } | null>(null)
 
 export function CameraProvider({ children }: { children: ReactNode }) {
   const [request, setRequest] = useState({ target: 'overview' as CameraTarget, revision: 0 })
-  const motion = useRef<CameraMotion>({ ...request, moving: true })
-  const focus = (target: CameraTarget) => setRequest(previous => ({ target, revision: previous.revision + 1 }))
-  return <CameraContext.Provider value={{ request, focus, motion }}>{children}</CameraContext.Provider>
+  const motion = useRef<CameraMotion>({ ...request, moving: true, following: null })
+  const focus = useCallback((target: CameraTarget, following: FollowedActor | null = null) => {
+    const next = { target, revision: motion.current.revision + 1 }
+    motion.current = { ...next, moving: true, following }
+    setRequest(next)
+  }, [])
+  const stop = useCallback(() => {
+    motion.current.moving = false
+    motion.current.following = null
+  }, [])
+
+  useEffect(() => {
+    document.addEventListener('pointerdown', stop, true)
+    document.addEventListener('click', stop, true)
+    return () => {
+      document.removeEventListener('pointerdown', stop, true)
+      document.removeEventListener('click', stop, true)
+    }
+  }, [stop])
+
+  return <CameraContext.Provider value={{ request, focus, stop, motion }}>{children}</CameraContext.Provider>
 }
 
 export function useCameraFocus() {
