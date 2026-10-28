@@ -5,7 +5,6 @@ import { Object3D } from 'three'
 import { useLanguage } from '../../i18n'
 import { actorPositions, useCameraFocus } from '../../state/camera'
 import { useReducedMotion } from '../../state/motion'
-import { lobby } from '../../state/lobby'
 import { Box } from '../primitives'
 import { useOfficePalette } from '../palette'
 import { ActorMaterials } from '../skins/parts'
@@ -70,7 +69,6 @@ export function Aquarium() {
     const peek = reduced ? 0 : Math.max(0, Math.sin(s.time * 0.21) - 0.75) * 4
     const y = tank.base + 0.2 + Math.sin(t0 * 1.7) * 0.1 + peek * 0.3 + Math.sin(s.jump / 0.8 * Math.PI) * 0.3
     swimmer.current.position.set(x, y, z)
-    swimmer.current.visible = !lobby.closed
     swimmer.current.rotation.y = reduced ? Math.PI / 2 : Math.atan2(Math.cos(t0 * 2) * 2 * tank.width * 0.18, Math.cos(t0) * tank.depth * 0.32)
     swimmer.current.rotation.z = reduced ? 0 : Math.sin(s.time * 3) * 0.12
     actorPositions.totodile = [center[0] + x, y - 0.6, center[2] + z]

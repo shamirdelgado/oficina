@@ -3,11 +3,10 @@ import { useFrame } from '@react-three/fiber'
 import type { Group } from 'three'
 import { useCameraFocus } from '../../state/camera'
 import { useReducedMotion } from '../../state/motion'
-import { lobby, lobbyWallZ } from '../../state/lobby'
 import { Box, Plant } from '../primitives'
 import { useOfficePalette } from '../palette'
 
-const wallZ = lobbyWallZ
+const wallZ = 2.9
 const height = 3.6
 const low = 0.5
 // La puerta queda alineada con el pasillo que usan los personajes (x = 2.6).
@@ -31,13 +30,12 @@ export function WaitingRoom() {
 
   useFrame((_, delta) => {
     if (!wall.current) return
-    // En la recepción la pared tapa al equipo; en el resto de vistas baja como en Los Sims.
+    // En la recepción la pared sube; en el resto de vistas baja como en Los Sims.
     const target = closedViews.has(motion.current.target) && !motion.current.following ? 1 : low / height
     const following = motion.current.following
     const goal = following === 'visitor' || following === 'pikachu' ? 1 : target
     const alpha = reduced ? 1 : 1 - Math.exp(-6 * Math.min(delta, 0.1))
     wall.current.scale.y += (goal - wall.current.scale.y) * alpha
-    lobby.closed = goal === 1 && wall.current.scale.y > 0.6
   })
 
   return <group>

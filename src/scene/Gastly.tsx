@@ -4,7 +4,6 @@ import { NearestFilter, SRGBColorSpace, TextureLoader } from 'three'
 import type { Group, Sprite, Texture } from 'three'
 import { useLanguage } from '../i18n'
 import { useReducedMotion } from '../state/motion'
-import { hiddenByLobby } from '../state/lobby'
 import { PetLabel, showBubble } from './pets/PetLabel'
 
 // Lugares donde puede aparecer, repartidos por toda la oficina.
@@ -117,7 +116,7 @@ export function Gastly() {
     const laughing = s.laughUntil > s.time
     const shake = laughing && !reduced ? Math.sin(s.time * 40) * 0.05 : 0
     group.current.position.set(x + shake, y + (reduced ? 0 : Math.sin(s.time * 1.3) * 0.13), z)
-    group.current.visible = s.opacity > 0.01 && !hiddenByLobby(z)
+    group.current.visible = s.opacity > 0.01
     sprite.current.material.opacity = s.opacity
     const frame = frames[Math.floor((reduced ? 0 : s.time) * (laughing ? 12 : 5)) % frames.length]
     if (sprite.current.material.map !== frame) sprite.current.material.map = frame

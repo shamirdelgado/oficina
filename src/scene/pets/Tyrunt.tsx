@@ -4,7 +4,6 @@ import type { Group } from 'three'
 import { useLanguage } from '../../i18n'
 import { actorPositions, useCameraFocus } from '../../state/camera'
 import { useReducedMotion } from '../../state/motion'
-import { lobby } from '../../state/lobby'
 import { ActorMaterials } from '../skins/parts'
 import { TyruntVisual } from '../skins/Tyrunt'
 import { PetLabel, showBubble } from './PetLabel'
@@ -89,7 +88,6 @@ export function Tyrunt() {
     const bob = walking && !reduced ? Math.abs(Math.sin(s.time * 9)) * 0.06 : 0
     group.current.position.set(s.position[0], bob + Math.sin(s.jump / 0.5 * Math.PI) * 0.35, s.position[1])
     group.current.rotation.y = s.angle
-    group.current.visible = !lobby.closed
     const head = group.current.getObjectByName('tyrunt-head')
     if (head && !reduced) head.rotation.x = walking ? Math.sin(s.time * 9) * 0.08 : Math.sin(s.time * 1.4) * 0.05
     actorPositions.tyrunt = [s.position[0], 0, s.position[1]]
