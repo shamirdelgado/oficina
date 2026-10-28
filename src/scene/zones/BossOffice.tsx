@@ -1,4 +1,5 @@
 import { Box, Chair, Desk, Plant } from '../primitives'
+import { PlantPokemon } from '../PlantPokemon'
 import { useOfficePalette } from '../palette'
 
 function Glass({ position, width, rotation = 0 }: {
@@ -31,8 +32,11 @@ export function BossOffice() {
       <Box size={[0.08, 0.4, 0.12]} position={[1.6, 1.35, 0.1]} color={palette.purple} />
     </group>
     <Glass position={[6.9, 1.5, -5.65]} width={4.8} rotation={Math.PI / 2} />
-    <group position={[0.6, 0, -5.2]} rotation={[0, Math.PI / 2, 0]}><Desk position={[0, 0, 0]} executive /></group>
+    <group position={[0.6, 0, -5.2]} rotation={[0, Math.PI / 2, 0]}><Desk position={[0, 0, 0]} executive ball="ultra" /></group>
     <group position={[1.9, 0, -5.2]} rotation={[0, -Math.PI / 2, 0]}><Chair position={[0, 0, 0]} /></group>
     <Plant position={[-5.6, 0, -6.6]} scale={1.2} />
+    {/* Rincón de vidrio junto al despacho */}
+    <PlantPokemon kind="bellsprout" position={[5.3, 0, -7.2]} scale={0.95} rotation={0.5} potted />
+    <PlantPokemon kind="vileplume" position={[6.1, 0, -4.3]} scale={0.85} rotation={0.8} />
   </group>
 }

@@ -7,7 +7,7 @@ export function Desks() {
   const { focus } = useCameraFocus()
   return <group>
     {([-1.6, 2.7] as const).map(x => <group key={x} position={[x, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
-      <Desk position={[0, 0, 0]} code={x === -1.6} />
+      <Desk position={[0, 0, 0]} code={x === -1.6} ball={x === -1.6 ? 'violet' : 'orange'} />
       <group rotation={[0, Math.PI, 0]}><Chair position={[0, 0, -1.3]} /></group>
     </group>)}
     {projects.map((project, index) =>

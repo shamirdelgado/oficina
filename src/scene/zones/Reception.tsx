@@ -1,4 +1,5 @@
-import { Box, Plant } from '../primitives'
+import { Box } from '../primitives'
+import { PlantPokemon } from '../PlantPokemon'
 import { useOfficePalette } from '../palette'
 import { Pokeball } from '../Pokeball'
 import { DeskLamp } from '../DeskLamp'
@@ -23,7 +24,7 @@ export function Reception() {
       <Box size={[1.5, 0.65, 0.22]} position={[0, 0.85, -1.5]} color={palette.terracotta} />
       <Box size={[0.5, 0.12, 0.6]} position={[0, 0.85, 0.7]} color={palette.purple} />
     </group>
-    <Plant position={[-5.7, 0, 6.5]} />
+    <PlantPokemon kind="vileplume" position={[-5.7, 0, 6.6]} scale={1.05} rotation={0.6} />
     <Box size={[3.8, 0.025, 2.4]} position={[-0.4, 0.04, 6.5]} color={palette.rug} />
   </group>
 }

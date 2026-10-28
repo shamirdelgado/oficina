@@ -22,6 +22,9 @@ export function Office() {
     <Box size={[14.2, 3.6, 0.2]} position={[0, 1.8, -8]} color={palette.wallBack} />
     <Box size={[0.24, 0.14, 16.2]} position={[-6.98, 0.1, 0]} color={palette.wood} />
     <Box size={[14.2, 0.14, 0.24]} position={[0, 0.1, -7.98]} color={palette.wood} />
+    {/* Pared del rincón de la pecera */}
+    <Box size={[3, 3.6, 0.2]} position={[8.6, 1.8, -8]} color={palette.wallBack} />
+    <Box size={[3, 0.14, 0.24]} position={[8.6, 0.1, -7.98]} color={palette.wood} />
     <Reception />
     <WaitingRoom />
     <Desks />

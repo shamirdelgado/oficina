@@ -1,4 +1,5 @@
-import { Box, Plant } from '../primitives'
+import { Box } from '../primitives'
+import { PlantPokemon } from '../PlantPokemon'
 import { useOfficePalette } from '../palette'
 export function BreakRoom() {
   const palette = useOfficePalette()
@@ -15,6 +16,6 @@ export function BreakRoom() {
     {[7.3, 9.3].map(x => <group key={x}><mesh castShadow position={[x, 0.65, 1.6]}><cylinderGeometry args={[0.3, 0.3, 0.14, 10]} /><meshStandardMaterial color={palette.purple} /></mesh><Box size={[0.12, 0.6, 0.12]} position={[x, 0.3, 1.6]} color={palette.wood} /></group>)}
     <Box size={[0.9, 0.5, 2]} position={[9.2, 0.4, -1.2]} color={palette.terracotta} />
     <Box size={[0.2, 1, 2.1]} position={[9.75, 0.75, -1.2]} color={palette.terracotta} />
-    <Plant position={[6.3, 0, -2.8]} scale={0.8} />
+    <PlantPokemon kind="bellsprout" position={[6.3, 0, -2.8]} scale={0.9} rotation={0.7} potted />
   </group>
 }

@@ -3,6 +3,7 @@ import { useOfficePalette } from './palette'
 import { CodeScreen } from './CodeScreen'
 import { DeskLamp } from './DeskLamp'
 import { Pokeball } from './Pokeball'
+import type { BallKind } from './Pokeball'
 import { LightPool } from './LightPool'
 
 export { palette } from './palette'
@@ -33,7 +34,9 @@ export function Plant({ position, scale = 1 }: { position: Position; scale?: num
   </group>
 }
 
-export function Desk({ position, executive = false, code = false }: { position: Position; executive?: boolean; code?: boolean }) {
+export function Desk({ position, executive = false, code = false, ball = 'poke' }: {
+  position: Position; executive?: boolean; code?: boolean; ball?: BallKind
+}) {
   const palette = useOfficePalette()
   const width = executive ? 3.4 : 2.8
   return <group position={position}>
@@ -52,7 +55,7 @@ export function Desk({ position, executive = false, code = false }: { position: 
     <Box size={[0.78, 0.05, 0.29]} position={[0, 1.36, 0.28]} color={palette.cream} />
     <Box size={[0.2, 0.06, 0.28]} position={[0.7, 1.37, 0.28]} color={palette.purple} />
     <DeskLamp position={[-width / 2 + 0.35, 1.328, -0.05]} />
-    <Pokeball position={[width / 2 - 0.28, 1.495, -0.35]} />
+    <Pokeball position={[width / 2 - 0.28, 1.495, -0.35]} kind={ball} />
   </group>
 }
 
