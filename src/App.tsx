@@ -6,24 +6,14 @@ import { PCFShadowMap } from 'three'
 import { useLanguage } from './i18n'
 import { Office } from './scene/Office'
 import { CameraRig } from './scene/CameraRig'
+import { Universe } from './scene/Universe'
 import { TopBar } from './ui/TopBar'
 import { LoadingScreen } from './ui/LoadingScreen'
 import { useVisitor } from './state/visitor'
 import { VisitorDialog } from './ui/VisitorDialog'
 import { Navigation } from './ui/Navigation'
-
-function supportsWebGL() {
-  try {
-    const canvas = document.createElement('canvas')
-    const context = canvas.getContext('webgl2')
-    if (!context) return false
-
-    context.getExtension('WEBGL_lose_context')?.loseContext()
-    return true
-  } catch {
-    return false
-  }
-}
+import { TourInstructions } from './ui/TourInstructions'
+import { useTheme } from './state/theme'
 
 function Fallback() {
   const { t, language } = useLanguage()
@@ -63,6 +53,8 @@ function FirstFrame({ onReady }: { onReady: () => void }) {
 }
 
 function Scene() {
+  const { theme } = useTheme()
+  const night = theme === 'night'
   const { arrived } = useVisitor()
   const [ready, setReady] = useState(false)
   const [loaded, setLoaded] = useState(false)
@@ -82,11 +74,11 @@ function Scene() {
           gl={{ antialias: true, alpha: true, powerPreference: 'default' }}
           fallback={<Fallback />}
         >
-          <hemisphereLight args={['#fff3dc', '#bca1af', 2.1]} />
+          <hemisphereLight args={[night ? '#cbb5ed' : '#fff3ee', night ? '#332044' : '#c4afd5', night ? 1.25 : 2.1]} />
           <directionalLight
             position={[0, 15, 5]}
-            color="#ffe4c0"
-            intensity={2.8}
+            color={night ? '#ffd3a0' : '#ffe8d2'}
+            intensity={night ? 1.9 : 2.8}
             castShadow={quality}
             shadow-mapSize={[1024, 1024]}
             shadow-camera-left={-12}
@@ -106,6 +98,7 @@ function Scene() {
           >
             <Office />
           </PerformanceMonitor>
+          <Universe quality={quality} />
           <CameraRig />
           <FirstFrame onReady={() => setReady(true)} />
         </Canvas>
@@ -117,7 +110,7 @@ function Scene() {
         </div>
       )}
       <footer className="tour-footer">
-        <p>{t.instructions}</p>
+        <TourInstructions />
         <Navigation />
       </footer>
       <VisitorDialog ready={loaded} />
@@ -127,11 +120,10 @@ function Scene() {
 }
 
 export function App() {
-  const [supported] = useState(supportsWebGL)
   return (
     <>
       <TopBar />
-      <SceneBoundary>{supported ? <Scene /> : <Fallback />}</SceneBoundary>
+      <SceneBoundary><Scene /></SceneBoundary>
     </>
   )
 }

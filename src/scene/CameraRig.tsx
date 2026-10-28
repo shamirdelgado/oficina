@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { MapControls } from '@react-three/drei'
 import { useFrame, useThree } from '@react-three/fiber'
 import { MathUtils, OrthographicCamera, Vector3 } from 'three'
@@ -12,10 +12,11 @@ const offset = new Vector3(19, 19, 19)
 const right = new Vector3(offset.z, 0, -offset.x).normalize()
 const vertical = new Vector3().crossVectors(offset.clone().normalize(), right).normalize()
 const corners = [-7.3, 10.3].flatMap(x =>
-  [-8.3, 8.3].flatMap(z => [0, 3.7].map(y => new Vector3(x, y, z))),
+  [-8.3, 8.3].flatMap(z => [-0.33, 3.7].map(y => new Vector3(x, y, z))),
 )
 const projectedWidth = projectedSpan(right)
 const projectedHeight = projectedSpan(vertical)
+const projectedCenter = new Vector3(1.5, 1.685, 0).dot(vertical)
 
 function projectedSpan(axis: Vector3) {
   const projections = corners.map(point => point.dot(axis))
@@ -46,6 +47,25 @@ export function CameraRig() {
   const desiredZoom = useRef(1)
   const deltaVector = useRef(new Vector3())
   const portrait = size.height > size.width
+  const [insets, setInsets] = useState({ top: 78, bottom: 132 })
+  useLayoutEffect(() => {
+    const bar = document.querySelector('.top-bar')
+    const dock = document.querySelector('.tour-navigation')
+    if (!bar || !dock) return
+    const measure = () => {
+      const top = bar.getBoundingClientRect().bottom
+      const bottom = size.height - dock.getBoundingClientRect().top
+      setInsets(previous => previous.top === top && previous.bottom === bottom ? previous : { top, bottom })
+    }
+    const observer = new ResizeObserver(measure)
+    observer.observe(bar)
+    observer.observe(dock)
+    measure()
+    return () => observer.disconnect()
+  }, [size.height, size.width])
+  const freeHeight = Math.max(120, size.height - insets.top - insets.bottom)
+  const portraitZoom = freeHeight * 0.85 / projectedHeight
+  const centerShift = (insets.top - insets.bottom) / 2
   const availableHeight = Math.max(120, size.height - (size.width < 600 ? 185 : 200))
   const heightZoom = availableHeight / projectedHeight
   const availableWidth = size.width < 600 ? size.width * 1.1 : size.width - 48
@@ -55,7 +75,14 @@ export function CameraRig() {
     const target = cameraTargets[request.target]
     destination.current.set(target.point[0], target.point[1], target.point[2])
     desiredZoom.current = fitZoom * target.scale
-  }, [request, fitZoom])
+    if (portrait && request.target === 'overview') {
+      desiredZoom.current = portraitZoom
+      // Centra la silueta completa en el espacio libre entre las barras.
+      destination.current.addScaledVector(vertical,
+        projectedCenter - destination.current.dot(vertical) + centerShift / portraitZoom)
+    }
+    motion.current.moving = true
+  }, [request, fitZoom, portrait, portraitZoom, centerShift, motion])
 
   const clampPan = useCallback(() => {
     const control = controls.current
@@ -133,7 +160,7 @@ export function CameraRig() {
       screenSpacePanning={false}
       enableDamping={!reducedMotion}
       dampingFactor={0.12}
-      minZoom={fitZoom * 0.85}
+      minZoom={Math.min(fitZoom, portrait ? portraitZoom : fitZoom) * 0.85}
       maxZoom={fitZoom * 3}
       onStart={stop}
       onChange={clampPan}

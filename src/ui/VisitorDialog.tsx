@@ -13,6 +13,10 @@ export function VisitorDialog({ ready }: { ready: boolean }) {
   }, [ready, editing, name])
   return <dialog ref={dialog} className="visitor-dialog" onCancel={event => event.preventDefault()} aria-labelledby="visitor-title">
     <form onSubmit={event => { event.preventDefault(); setVisitor(value.trim() || t.visitorDefault) }}>
+      <div className="visitor-heading">
+        <span className="office-path">{t.officePath}</span>
+        <img src={`${import.meta.env.BASE_URL}img/sprites/gastly1.png`} alt="" width="48" height="48" />
+      </div>
       <h1 id="visitor-title">{t.nameQuestion}</h1>
       <label htmlFor="visitor-name">{t.nameLabel}</label>
       <input id="visitor-name" autoFocus maxLength={24} value={value} onChange={event => setValue(event.target.value)} autoComplete="given-name" />

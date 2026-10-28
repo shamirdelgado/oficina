@@ -1,7 +1,9 @@
-import { Box, Plant, palette } from '../primitives'
+import { Box, Plant } from '../primitives'
+import { useOfficePalette } from '../palette'
 export function BreakRoom() {
+  const palette = useOfficePalette()
   return <group>
-    <Box size={[3.3, 0.03, 6]} position={[8.1, 0.04, -0.4]} color="#e2d9c5" />
+    <Box size={[3.3, 0.03, 6]} position={[8.1, 0.04, -0.4]} color={palette.tile} />
     <Box size={[2.8, 0.8, 0.7]} position={[8.3, 0.4, -2.9]} color={palette.wood} />
     <Box size={[0.7, 0.8, 0.55]} position={[7.6, 1.2, -2.9]} color={palette.ink} />
     <Box size={[0.4, 0.38, 0.06]} position={[7.6, 1.2, -2.59]} color={palette.metal} />

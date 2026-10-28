@@ -1,22 +1,30 @@
-import { Box, Chair, Desk, Plant, palette } from '../primitives'
+import { Box, Chair, Desk, Plant } from '../primitives'
+import { useOfficePalette } from '../palette'
+import { Gastly } from '../Gastly'
 
 function Glass({ position, width, rotation = 0 }: {
   position: [number, number, number]; width: number; rotation?: number
 }) {
+  const palette = useOfficePalette()
   return <group position={position} rotation={[0, rotation, 0]}>
     <mesh receiveShadow>
       <boxGeometry args={[width, 2.9, 0.045]} />
-      <meshStandardMaterial color="#b6cbd0" transparent opacity={0.16} roughness={0.2} depthWrite={false} />
+      <meshStandardMaterial color={palette.glass} transparent opacity={0.12} roughness={0.2} depthWrite={false} />
     </mesh>
     <Box size={[width, 0.055, 0.08]} position={[0, 1.45, 0]} color={palette.metal} />
     <Box size={[0.055, 2.9, 0.08]} position={[-width / 2, 0, 0]} color={palette.metal} />
     <Box size={[0.055, 2.9, 0.08]} position={[width / 2, 0, 0]} color={palette.metal} />
+    <Box size={[width, 0.022, 0.025]} position={[0, 1.45, 0.05]}
+      color={palette.strip} emissive={palette.strip} castShadow={false} />
+    {[-1, 1].map(side => <Box key={side} size={[0.022, 2.9, 0.025]}
+      position={[side * width / 2, 0, 0.05]} color={palette.strip} emissive={palette.strip} castShadow={false} />)}
   </group>
 }
 
 export function BossOffice() {
+  const palette = useOfficePalette()
   return <group>
-    <Box size={[13.8, 0.035, 4.6]} position={[0, 0.03, -5.6]} color="#e2d3c4" />
+    <Box size={[13.8, 0.035, 4.6]} position={[0, 0.03, -5.6]} color={palette.officeFloor} />
     <Glass position={[-2.2, 1.5, -3.25]} width={9.4} />
     <Glass position={[5.6, 1.5, -3.25]} width={2.6} />
     <group position={[2.5, 0, -3.25]} rotation={[0, Math.PI / 2, 0]}>
@@ -29,5 +37,6 @@ export function BossOffice() {
     <Plant position={[-5.6, 0, -6.6]} scale={1.2} />
     <Box size={[2, 0.7, 0.65]} position={[5.2, 0.35, -7.3]} color={palette.wood} />
     <Plant position={[5.2, 0.7, -7.3]} scale={0.6} />
+    <Gastly />
   </group>
 }
