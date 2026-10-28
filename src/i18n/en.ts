@@ -49,6 +49,6 @@ export const en: Translation = {
 
   nameQuestion: "What's your name?", nameLabel: 'Your name', enter: 'Enter', skip: 'Skip',
   visitorDefault: 'Visitor', changeName: 'Change name', greeting: 'Hi, {name}!',
-  help: 'How can I help you, {name}?', close: 'Close', meow: 'meow', cat: 'Tapioca',
+  help: 'How can I help you, {name}?', close: 'Close', meow: 'meow', cat: 'Chispitas', pikachu: 'Pikachu', pika: '¡Pika pika!',
   cues: { coffee: '☕', talk: '💬', sweep: '🧹', thinking: '🤔', done: '✓' },
 }

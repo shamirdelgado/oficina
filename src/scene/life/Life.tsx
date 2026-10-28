@@ -5,22 +5,15 @@ import { useLanguage } from '../../i18n'
 import { useCameraFocus, actorPositions } from '../../state/camera'
 import { useReducedMotion } from '../../state/motion'
 import { useVisitor, visitorArrived } from '../../state/visitor'
-import { PersonVisual, CatVisual, Broom, updateActorVisual } from '../Character'
+import { PersonVisual, CatVisual, PikachuVisual, ActorMaterials, Broom, updateActorVisual } from '../Character'
 import { SceneLabel } from '../SceneLabel'
 import { createActors, go, routine, speeds } from './routines'
 import type { Actor, ActorId } from './routines'
+import { followVisitor } from './companion'
+import type { VisitorTrail } from './companion'
 import { nodes } from './navGraph'
 import type { NodeId, Point } from './navGraph'
 
-const colors = {
-  esiel: '#7b8c79',
-  kalua: '#c47d65',
-  shamir: '#6b3fd4',
-  emma: '#6b3fd4',
-  cleaner: '#6c97a3',
-  visitor: '#d6a83e',
-  cat: '#ca9870',
-}
 
 function reachNode(actor: Actor, node: NodeId, position: Point) {
   actor.position = position
@@ -35,6 +28,7 @@ export function Life() {
   const labels = useRef(new Map<ActorId, HTMLDivElement>())
   const bubbles = useRef(new Map<ActorId, HTMLSpanElement>())
   const time = useRef(0)
+  const trail = useRef<VisitorTrail>([])
   const greetingDeadline = useRef<number | null>(null)
   const visitorStarted = useRef(false)
   const { t } = useLanguage()
@@ -57,10 +51,10 @@ export function Life() {
   }, [name, arrived])
 
   const select = (id: ActorId) => {
-    if (id === 'cat') {
+    if (id === 'cat' || id === 'pikachu') {
       const cat = actors.current.find(actor => actor.id === id)!
       cat.jump = 0.6
-      cat.cue = 'meow'
+      cat.cue = id === 'cat' ? 'meow' : 'pika'
       cat.cueUntil = time.current + 2
     }
 
@@ -93,13 +87,6 @@ export function Life() {
       if (!actor.route.length) actor.timer -= dt
       routine(actor, actors.current, time.current)
 
-      if (reduced && actor.id === 'cat' && actor.visible) {
-        actor.route = []
-        if (actor.phase === 'out') {
-          actor.phase = 'pause'
-          actor.timer = 18
-        }
-      }
 
       if (
         actor.phase === 'home' && actor.cueUntil <= time.current &&
@@ -108,7 +95,7 @@ export function Life() {
         actor.angle = -Math.PI / 2
       }
 
-      const walking = actor.route.length > 0
+      let walking = actor.route.length > 0
       if (walking) {
         const next = actor.route[0]
         const goal: Point = [...nodes[next]]
@@ -156,6 +143,27 @@ export function Life() {
         actor.angle = 0
       }
 
+      if (actor.id === 'pikachu') {
+        const visitor = actors.current.find(other => other.id === 'visitor')!
+        walking = followVisitor(actor, visitor, trail.current, dt, reduced)
+      }
+
+      if (actor.id === 'cat' && !walking) {
+        const visitor = actors.current.find(other => other.id === 'visitor')!
+        if (actor.activity === 'watch' && visitor.visible) {
+          actor.angle = Math.atan2(visitor.position[0] - actor.position[0], visitor.position[2] - actor.position[2])
+        }
+        if (actor.activity === 'sleep') actor.angle = 0
+        if (actor.activity === 'rub' && actor.node === 'petPass') {
+          const pika = actors.current.find(other => other.id === 'pikachu')!
+          actor.angle = pika.angle
+          if (!reduced) {
+            actor.position[0] = pika.position[0] + 0.32
+            actor.position[2] = pika.position[2] + Math.cos(actor.timer / 8 * Math.PI) * 0.55
+          }
+        }
+      }
+
       const group = groups.current.get(actor.id)
       if (!group) continue
 
@@ -173,11 +181,12 @@ export function Life() {
           seated: actor.phase === 'home' && ['esiel', 'kalua', 'shamir'].includes(actor.id),
           greeting: actor.id === 'emma' && actor.cueUntil > time.current,
           sweeping: actor.id === 'cleaner' && !walking,
-          resting: actor.id === 'cat' && !walking && actor.phase === 'pause',
+          activity: actor.activity,
           jump: actor.jump,
           opacity: actor.fade,
           reduced,
           time: time.current,
+          dt,
         })
       }
 
@@ -187,9 +196,11 @@ export function Life() {
 
       const bubble = bubbles.current.get(actor.id)
       if (bubble) {
-        const cue = actor.cueUntil > time.current && (!walking || actor.id === 'cat') ? actor.cue : ''
+        const cue = actor.cueUntil > time.current && (!walking || actor.id === 'cat' || actor.id === 'pikachu') ? actor.cue : ''
         if (cue === 'greeting') {
           bubble.textContent = t.greeting.replace('{name}', name ?? t.visitorDefault)
+        } else if (cue === 'pika') {
+          bubble.textContent = t.pika
         } else if (cue === 'meow') {
           bubble.textContent = t.meow
         } else {
@@ -204,7 +215,7 @@ export function Life() {
     <>
       {actors.current.map(actor => {
         const id = actor.id
-        const label = id === 'visitor' ? name ?? t.visitorDefault : id === 'cat' ? t.cat : t.characters[id]
+        const label = id === 'visitor' ? name ?? t.visitorDefault : id === 'cat' ? t.cat : id === 'pikachu' ? t.pikachu : t.characters[id]
         const selected = request.target === id || id === 'shamir' && request.target === 'boss'
         const labelVisible = hover === id || selected || id === 'visitor' || id === 'emma' && emmaOpen
 
@@ -227,14 +238,16 @@ export function Life() {
             <group ref={group => {
               if (group) visuals.current.set(id, group)
             }}>
-              {id === 'cat' ? <CatVisual /> : <PersonVisual color={colors[id]} />}
+              <ActorMaterials>
+                {actor.skin === 'chispitas' ? <CatVisual /> : actor.skin === 'pikachu' ? <PikachuVisual /> : <PersonVisual skin={actor.skin} />}
+              </ActorMaterials>
               {id === 'cleaner' && (
                 <group name="broom">
                   <Broom />
                 </group>
               )}
             </group>
-            <SceneLabel position={[0, id === 'cat' ? 1.3 : 2.65, 0]} center zIndexRange={[25, 0]}>
+            <SceneLabel position={[0, id === 'cat' || id === 'pikachu' ? 1.3 : 2.65, 0]} center zIndexRange={[25, 0]}>
               <div ref={element => {
                 if (element) labels.current.set(id, element)
               }}>

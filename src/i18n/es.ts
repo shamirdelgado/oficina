@@ -54,6 +54,6 @@ export const es = {
 
   nameQuestion: '¿Cómo te llamas?', nameLabel: 'Tu nombre', enter: 'Entrar', skip: 'Prefiero no decirlo',
   visitorDefault: 'Visitante', changeName: 'Cambiar nombre', greeting: '¡Hola, {name}!',
-  help: '¿En qué te ayudo, {name}?', close: 'Cerrar', meow: 'miau', cat: 'Tapioca',
+  help: '¿En qué te ayudo, {name}?', close: 'Cerrar', meow: 'miau', cat: 'Chispitas', pikachu: 'Pikachu', pika: '¡Pika pika!',
   cues: { coffee: '☕', talk: '💬', sweep: '🧹', thinking: '🤔', done: '✓' },
 }

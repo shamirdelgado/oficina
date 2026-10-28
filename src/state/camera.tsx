@@ -8,6 +8,7 @@ export const cameraTargets = {
   desks: { point: [0, 0.6, -0.2], scale: 1.6 },
   breakRoom: { point: [7.6, 0.7, -0.2], scale: 1.8 },
   cleaner: { point: [0, 1, 2], scale: 2 },
+  pikachu: { point: [0.62, 1, 6.35], scale: 2 },
   cat: { point: [7.6, 1, -0.2], scale: 2 },
   visitor: { point: [0, 1, 6], scale: 1.7 },
   esiel: { point: [-2, 1, -0.7], scale: 2.1 },
@@ -16,7 +17,7 @@ export const cameraTargets = {
 } as const
 export const actorPositions: Partial<Record<string, [number, number, number]>> = {}
 export type CameraTarget = keyof typeof cameraTargets
-type FollowedActor = 'esiel' | 'kalua' | 'shamir' | 'cleaner' | 'cat' | 'visitor'
+type FollowedActor = 'esiel' | 'kalua' | 'shamir' | 'cleaner' | 'cat' | 'visitor' | 'pikachu'
 type CameraMotion = { target: CameraTarget; revision: number; moving: boolean; following: FollowedActor | null }
 const CameraContext = createContext<{
   request: { target: CameraTarget; revision: number }

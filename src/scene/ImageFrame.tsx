@@ -20,7 +20,9 @@ export function ImageFrame({ image, position, width, ratio, rotation = 0, onClic
     }, undefined, () => { if (!disposed) setTexture(null) })
     return () => { disposed = true; pending.dispose() }
   }, [image])
-  const height = width / ratio
+  const dimensions = texture?.image as { width: number; height: number } | undefined
+  const imageRatio = dimensions && dimensions.width > 0 && dimensions.height > 0 ? dimensions.width / dimensions.height : ratio
+  const height = width / imageRatio
   const border = Math.min(0.075, width * 0.1)
   const depth = Math.min(0.1, width * 0.16)
   return <group position={position} rotation={[0, rotation, 0]}
@@ -28,7 +30,7 @@ export function ImageFrame({ image, position, width, ratio, rotation = 0, onClic
     <Box size={[width + border * 2, height + border * 2, depth]} color={palette.wood} />
     <mesh position={[0, 0, depth / 2 + 0.01]}>
       <planeGeometry args={[width, height]} />
-      <meshStandardMaterial color={texture ? '#ffffff' : palette.mat} map={texture} roughness={0.95} />
+      {texture ? <meshBasicMaterial color="#ffffff" map={texture} toneMapped={false} /> : <meshStandardMaterial color={palette.mat} roughness={0.95} />}
     </mesh>
   </group>
 }

@@ -1,9 +1,14 @@
+import type { SkinId } from '../Character'
+import type { CatActivity } from '../skins/Chispitas'
 import { nodes, path } from './navGraph'
 import type { NodeId, Point } from './navGraph'
 
-export type ActorId = 'esiel' | 'kalua' | 'shamir' | 'emma' | 'cleaner' | 'cat' | 'visitor'
+export type ActorId = 'esiel' | 'kalua' | 'shamir' | 'emma' | 'cleaner' | 'cat' | 'visitor' | 'pikachu'
 export type Actor = {
   id: ActorId
+  skin: SkinId
+  activity: CatActivity
+  activityStep: number
   node: NodeId
   home: NodeId
   position: Point
@@ -36,6 +41,9 @@ const pick = <T,>(items: T[]) => items[Math.floor(Math.random() * items.length)]
 function create(id: ActorId, home: NodeId, timer: number): Actor {
   return {
     id,
+    skin: id === 'cleaner' ? 'lia' : id === 'cat' ? 'chispitas' : id,
+    activity: 'idle',
+    activityStep: 0,
     node: home,
     home,
     position: [...nodes[home]],
@@ -43,7 +51,7 @@ function create(id: ActorId, home: NodeId, timer: number): Actor {
     angle: -Math.PI / 2,
     timer,
     phase: 'home',
-    visible: id !== 'cat' && id !== 'visitor',
+    visible: id !== 'cat' && id !== 'visitor' && id !== 'pikachu',
     cue: '',
     cueUntil: 0,
     steps: 0,
@@ -61,6 +69,7 @@ export function createActors() {
     create('cleaner', 'west', 4),
     create('cat', 'breakDoor', delay(timing.catArrival)),
     create('visitor', 'entrance', Infinity),
+    create('pikachu', 'entrance', Infinity),
   ]
 }
 
@@ -69,19 +78,20 @@ export function go(actor: Actor, destination: NodeId) {
 }
 
 export function routine(actor: Actor, actors: Actor[], time: number) {
-  if (actor.route.length || actor.timer > 0 || actor.id === 'emma' || actor.id === 'visitor') return
+  if (actor.route.length || actor.timer > 0 || actor.id === 'emma' || actor.id === 'visitor' || actor.id === 'pikachu') return
 
   if (actor.id === 'cat') {
     if (!actor.visible) {
       actor.node = pick(['breakDoor', 'esiel', 'reception'])
       actor.position = [...nodes[actor.node]]
       actor.visible = true
-      actor.steps = Math.floor(random(2, 5))
+      actor.steps = 5
       actor.phase = 'out'
     }
 
     if (actor.phase === 'pause') {
       go(actor, 'breakDoor')
+      actor.activity = 'idle'
       actor.phase = 'return'
       return
     }
@@ -94,10 +104,20 @@ export function routine(actor: Actor, actors: Actor[], time: number) {
     }
 
     if (actor.steps-- > 0) {
-      go(actor, pick(['coffee', 'breakBack', 'sofa', 'reception', 'esiel']))
-      actor.timer = delay(timing.catStop)
+      const activities: CatActivity[] = ['stretch', 'groom', 'sleep', 'watch', 'rub']
+      actor.activity = activities[actor.activityStep++ % activities.length]
+      const visitor = actors.find(other => other.id === 'visitor')!
+      const companionReady = visitor.visible && !visitor.route.length
+      if ((actor.activity === 'watch' || actor.activity === 'rub') && !companionReady) actor.activity = 'groom'
+      const destination = actor.activity === 'sleep' ? 'sofa'
+        : actor.activity === 'watch' ? 'visitorSide'
+        : actor.activity === 'rub' ? 'petPass'
+        : pick(['coffee', 'breakBack', 'reception', 'esiel'] as const)
+      go(actor, destination)
+      actor.timer = actor.activity === 'sleep' ? random(24, 36) : actor.activity === 'rub' ? 8 : random(6, 10)
     } else {
       actor.phase = 'pause'
+      actor.activity = pick(['stretch', 'groom'])
       actor.timer = delay(timing.catRest)
     }
     return
